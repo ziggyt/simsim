@@ -1,4 +1,6 @@
 import logging
+import random
+
 from beamngpy import BeamNGpy, Scenario, Vehicle
 import math
 import time
@@ -14,18 +16,18 @@ def main():
         # Connect to BeamNG.tech
         bng = BeamNGpy('localhost', 64256, home=beamng_home)
         bng.open(launch=True)
-        
+
         logging.info("Connected to BeamNG.tech")
 
         # Create a scenario in East Coast USA map
-        scenario = Scenario('east_coast_usa', 'Intoxeye User Test v0.1')
-        
-        # Highway spawn point coordinates for player
-        player_spawn = (903.470642, -235.299133, 40.2094994)
-        
-        # Player rotation (45 degrees to the left)
-        player_rot_quat = (0, 0, 0.3826834, 0.9238795)  # This is a 45-degree rotation around the Z-axis
-        
+        scenario = Scenario('east_coast_usa', 'Driver Impairment User Test v0.1', description='Here we can add some simple instructions if we want to.', authors='RISE', settings={'Start Time': 0})
+
+        # Player spawn point coordinates
+        player_spawn = (438.334015, -810.008179, 42.9711952)
+
+        # Player rotation (180 degrees from previous rotation)
+        player_rot_quat = (0.0087653, 0.00096168, 0.93361151, 0.35821542)
+
         # Create and add the player's vehicle
         player_vehicle = Vehicle('ego_vehicle', model='etk800', license='RISE')
         scenario.add_vehicle(player_vehicle, pos=player_spawn, rot_quat=player_rot_quat)
@@ -54,9 +56,11 @@ def main():
             }
         ]
 
+
+        vehicle_colors = ["red", "green", "blue"]
         # Create and add NPC vehicles
         for npc in npc_vehicles:
-            vehicle = Vehicle(npc['name'], model='etk800', license=f'NPC {npc["name"][-1]}')
+            vehicle = Vehicle(npc['name'], model='etk800',color=vehicle_colors.pop(), license=f'NPC {npc["name"][-1]}')
             scenario.add_vehicle(vehicle, pos=npc['pos'], rot_quat=npc['rot'])
 
         logging.info("Vehicles added to scenario")
@@ -74,6 +78,10 @@ def main():
         for npc in npc_vehicles:
             scenario.get_vehicle(npc['name']).ai.set_mode('disabled')
         logging.info("Vehicle AI modes set")
+
+        # Set the default camera to interior view
+        bng.camera.set_player_mode(player_vehicle, 'driver', {'fov': 60})
+        logging.info("Camera set to interior view")
 
         logging.info("Waiting for the user to start the scenario in BeamNG.tech...")
 
@@ -107,14 +115,14 @@ def main():
                 # Calculate distance between player and NPC
                 distance = math.sqrt(sum((a - b) ** 2 for a, b in zip(player_pos, npc_pos)))
 
-                # If player is closer than 50 meters and NPC hasn't been triggered yet, make NPC drive
-                if distance < 50 and not npc_triggered[i]:
-                    npc_vehicle.ai.set_mode('span')
+                # If player is closer than 180 meters and NPC hasn't been triggered yet, make NPC drive
+                if distance < 180 and not npc_triggered[i]:
+                    npc_vehicle.ai.set_mode('traffic')
                     npc_vehicle.ai.drive_in_lane(True)
-                    # Attempt to set speed to 80% of normal (this may not work as expected, needs testing)
-                    npc_vehicle.ai.set_speed(80, mode='limit')
+                    npc_vehicle.ai.set_speed(12, mode='limit')  # Set speed limit to 12 m/s (about 43 km/h or 27 mph)
+
                     npc_triggered[i] = True
-                    logging.info(f"{npc['name']} has been triggered and is now driving!")
+                    logging.info(f"{npc['name']} has been triggered and is now driving in traffic mode!")
 
             time.sleep(0.1)
 
