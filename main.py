@@ -1,9 +1,13 @@
 import logging
 import random
 
+import beamngpy.api.beamng.ui
 from beamngpy import BeamNGpy, Scenario, Vehicle
+from beamngpy.api.beamng.ui import UiApi
 import math
 import time
+
+
 
 def main():
     # Set up logging
@@ -123,6 +127,7 @@ def main():
 
                     npc_triggered[i] = True
                     logging.info(f"{npc['name']} has been triggered and is now driving in traffic mode!")
+                    UiApi.display_message(f"Overtake the vehicle in front of you")
 
             time.sleep(0.1)
 
