@@ -8,17 +8,21 @@ import math
 import time
 
 
+run_at_home = False
+
+bng_home = run_at_home ? r'"C:\Users\max\Documents\BeamNG.tech.v0.32.5.0\BeamNG.tech.v0.32.5.0' : r'C:\Users\CAPsim\Documents\beamng'
+
 
 def main():
     # Set up logging
     logging.basicConfig(level=logging.DEBUG)
 
     # Specify the path to your BeamNG.tech installation
-    beamng_home = r"C:\Users\max\Documents\BeamNG.tech.v0.32.5.0\BeamNG.tech.v0.32.5.0"
 
+    # beamng_home = r" # Path for running scenario at home
     try:
         # Connect to BeamNG.tech
-        bng = BeamNGpy('localhost', 64256, home=beamng_home)
+        bng = BeamNGpy('localhost', 64256, home=bng_home, user=r'C:\Users\CAPsim\Documents\beamng\BeamNG.tech.v0.31.2.0\tech\max')
         bng.open(launch=True)
 
         logging.info("Connected to BeamNG.tech")
@@ -61,10 +65,9 @@ def main():
         ]
 
 
-        vehicle_colors = ["red", "green", "blue"]
         # Create and add NPC vehicles
         for npc in npc_vehicles:
-            vehicle = Vehicle(npc['name'], model='etk800',color=vehicle_colors.pop(), license=f'NPC {npc["name"][-1]}')
+            vehicle = Vehicle(npc['name'], model='etk800', license=f'NPC {npc["name"][-1]}')
             scenario.add_vehicle(vehicle, pos=npc['pos'], rot_quat=npc['rot'])
 
         logging.info("Vehicles added to scenario")
@@ -125,9 +128,18 @@ def main():
                     npc_vehicle.ai.drive_in_lane(True)
                     npc_vehicle.ai.set_speed(12, mode='limit')  # Set speed limit to 12 m/s (about 43 km/h or 27 mph)
 
+                    npc_pos = [npc_pos[0] + 2, npc_pos[1] + 2, npc_pos[2] + 2]
+                    print(npc_pos)
+                    print("\n\n\n\n\n\n\n\n\n\n\n\n")
+
                     npc_triggered[i] = True
                     logging.info(f"{npc['name']} has been triggered and is now driving in traffic mode!")
-                    UiApi.display_message(f"Overtake the vehicle in front of you")
+                    #UiApi.display_message(msg=f"Overtake the vehicle in front of you")
+                    bng.ui.display_message(f"Overtake the vehicle in front of you")
+                    time.sleep(0.2)
+                    bng.ui.display_message(f"Overtake the vehicle in front of you")
+                    time.sleep(0.2)
+                    bng.ui.display_message(f"Overtake the vehicle in front of you")
 
             time.sleep(0.1)
 
