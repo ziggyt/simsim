@@ -7,10 +7,9 @@ from beamngpy.api.beamng.ui import UiApi
 import math
 import time
 
+run_at_home = True
 
-run_at_home = False
-
-bng_home = run_at_home ? r'"C:\Users\max\Documents\BeamNG.tech.v0.32.5.0\BeamNG.tech.v0.32.5.0' : r'C:\Users\CAPsim\Documents\beamng'
+bng_home = r'C:\Users\max\Documents\BeamNG.tech.v0.32.5.0\BeamNG.tech.v0.32.5.0' if run_at_home else r'C:\Users\CAPsim\Documents\beamng'
 
 
 def main():
@@ -22,13 +21,16 @@ def main():
     # beamng_home = r" # Path for running scenario at home
     try:
         # Connect to BeamNG.tech
-        bng = BeamNGpy('localhost', 64256, home=bng_home, user=r'C:\Users\CAPsim\Documents\beamng\BeamNG.tech.v0.31.2.0\tech\max')
+        bng = BeamNGpy('localhost', 64256, home=bng_home,
+                       user=None if run_at_home else r'C:\Users\CAPsim\Documents\beamng\BeamNG.tech.v0.31.2.0\tech\max')
         bng.open(launch=True)
 
         logging.info("Connected to BeamNG.tech")
 
         # Create a scenario in East Coast USA map
-        scenario = Scenario('east_coast_usa', 'Driver Impairment User Test v0.1', description='Here we can add some simple instructions if we want to.', authors='RISE', settings={'Start Time': 0})
+        scenario = Scenario('east_coast_usa', 'Driver Impairment User Test v0.1',
+                            description='Here we can add some simple instructions if we want to.', authors='RISE',
+                            settings={'Start Time': 0})
 
         # Player spawn point coordinates
         player_spawn = (438.334015, -810.008179, 42.9711952)
@@ -63,7 +65,6 @@ def main():
                 'rot': (0, 0, -0.042764, 0.999085)
             }
         ]
-
 
         # Create and add NPC vehicles
         for npc in npc_vehicles:
@@ -134,7 +135,7 @@ def main():
 
                     npc_triggered[i] = True
                     logging.info(f"{npc['name']} has been triggered and is now driving in traffic mode!")
-                    #UiApi.display_message(msg=f"Overtake the vehicle in front of you")
+                    # UiApi.display_message(msg=f"Overtake the vehicle in front of you")
                     bng.ui.display_message(f"Overtake the vehicle in front of you")
                     time.sleep(0.2)
                     bng.ui.display_message(f"Overtake the vehicle in front of you")
@@ -149,6 +150,7 @@ def main():
         # Close the connection
         if 'bng' in locals():
             bng.close()
+
 
 if __name__ == "__main__":
     main()
